@@ -14,3 +14,4 @@ Ref: https://github.com/clvrai/create
 
 When you merge the pull request, please do the 'Squash and merge' instead of 'Merge pull request'.
 You can change the merge type by clicking the downside-triangular green button.
+Also, please delete your branch after merging it.
