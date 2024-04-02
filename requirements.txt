@@ -1,0 +1,13 @@
+cffi==1.16.0
+cloudpickle==3.0.0
+future==1.0.0
+gym==0.21.0
+numpy==1.26.4
+opencv-python==4.9.0.80
+pillow==10.2.0
+pycparser==2.21
+pygame==2.5.2
+pyglet==2.0.14
+pymunk==5.5.0
+scipy==1.12.0
+six==1.16.0
