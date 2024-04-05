@@ -22,15 +22,21 @@ Log directories:
 
 
 ## Prerequisites
-- Python 3.7
-- MuJoCo 2.0
+- Python 3.7.3
+- MuJoCo 2.0 (not need Mujoco to run create env)
 
 ## Dependencies
 All the python package requirements are in `requirements.txt`. If you are using conda, you can use the following command with Python 3.7.3:
 ```
-conda create -n [your_name] python=3.7
+conda create -n [your_name] python=3.7 tensorflow==1.14.0
 source activate [your_name]
 pip install -r requirements.txt
+```
+
+In addition, to run the code in CUDA,
+```
+conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
 ```
 
 ## Experiments
@@ -59,6 +65,10 @@ Below are the example commands used for each environment and method approach.
 `$ENV_NAME` = `'CreateLevelPush-v0'` or `'CreateLevelNavigate-v0'` or `'CreateLevelObstacle-v0'`.  
 `$PLAY_ENV_NAME` = `'StateCreateGameN1PlayNew-v0'` (state-based) or `'CreateGamePlay-v0'` (video-based).  
 `$EMB_FILE_NAME` = `'create_st'` (state-based) or `create_im` (video-based)
+
+(0) For single task agent without test evaluation:
+
+`python main.py --env-name CreateLevelPush-v0 --prefix main --action-random-sample False --no-test-eval`.
 
 (1) Train policy directly with:
 

@@ -69,7 +69,8 @@ def grid_play_args(args):
 
 def create_args(args):
     # set_if_none(args, 'num_processes', 32)
-    set_if_none(args, 'num_processes', 1)
+    set_if_none(args, 'num_processes', 4)
+    set_if_none(args, 'eval_num_processes', 1)
 
     set_if_none(args, 'exp_type', 'NewMain')
     set_if_none(args, 'sample_clusters', False)
@@ -128,7 +129,8 @@ def create_play_args(args):
         args.prefix = 'VideoCreate'
 
     # set_if_none(args, 'num_processes', 32)
-    set_if_none(args, 'num_processes', 1)
+    set_if_none(args, 'num_processes', 4)
+    set_if_none(args, 'eval_num_processes', 1)
     set_if_none(args, 'o_dim', 128)
     set_if_none(args, 'z_dim', 128)
     args.action_random_sample = False

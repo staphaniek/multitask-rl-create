@@ -264,7 +264,8 @@ class VecPyTorchFrameStack(VecEnvWrapper):
     def step_wait(self):
         obs, rews, news, infos = self.venv.step_wait()
 
-        a = self.stacked_obs.clone().detach()
+        a = self.stacked_obs.detach()
+        # self.stackedobs = np.roll(self.stackedobs, shift=-1, axis=-1)
         self.stacked_obs[:, :-self.shape_dim0] = a[:, self.shape_dim0:]
         for (i, new) in enumerate(news):
             if new:
