@@ -11,3 +11,11 @@ Run new codes (eg. stablebaseline 3 benchmarks) on CREATE environment to train m
 ## new-actions-rl
 
 Run the new-actions-rl repository based code to train multi-task rl agent.
+
+## Notes
+
+When you merge the pull request, please do the 'Squash and merge' instead of 'Merge pull request'.
+
+You can change the merge type by clicking the green downside-triangular button.
+
+Also, please delete your branch after merging it.
