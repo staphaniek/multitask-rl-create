@@ -2,15 +2,15 @@
 
 This repository is for CSCI-566 Spring 24 course project 'Multi-Task Reinforcement Learning for Physical Reasoning' - Learning a multi-task Reinforcement Learning agent at USC.
 
-Our code is based on Python version 3.11.5.
+# Subprojects
 
-## Environments
+## multitask-rl-create
 
-Currently, we have CREATE environment to train our agent 
+Run new codes (eg. stablebaseline 3 benchmarks) on CREATE environment to train multi-task rl agent.
 
-### CREATE
+## new-actions-rl
 
-Ref: https://github.com/clvrai/create
+Run the new-actions-rl repository based code to train multi-task rl agent.
 
 ## Notes
 
