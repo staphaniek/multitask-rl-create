@@ -131,7 +131,10 @@ class Logger(object):
         before = ('%s-%s-%s-%s-' %
                   (date_id, env_id, args.seed, rnd_id))
 
-        if args.prefix != 'debug' and args.prefix != 'NONE':
+		if args.resume:
+            self.prefix = args.load_best_name.split('/')[1]
+
+        elif args.prefix != 'debug' and args.prefix != 'NONE':
             self.prefix = before + args.prefix
             print('Assigning full prefix %s' % self.prefix)
         else:
