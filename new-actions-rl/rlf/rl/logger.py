@@ -131,9 +131,11 @@ class Logger(object):
         before = ('%s-%s-%s-%s-' %
                   (date_id, env_id, args.seed, rnd_id))
 
-	if args.resume:
-	    self.prefix = args.load_best_name.split('/')[1]
-		
+        if args.resume and args.load_best_name is not None:
+            env_id, prefix = args.load_best_name.split('/')
+            print(f"env_id: {env_id}, prefix: {prefix}")
+            self.prefix = prefix
+            print('[Resume training] Assigned prefix %s' % self.prefix)
         elif args.prefix != 'debug' and args.prefix != 'NONE':
             self.prefix = before + args.prefix
             print('Assigning full prefix %s' % self.prefix)

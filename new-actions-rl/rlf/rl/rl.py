@@ -11,8 +11,13 @@ from rlf.rl.storage import RolloutStorage
 from rlf.rl.utils import get_vec_normalize
 import time
 
-def train(envs, rollouts, policy, updater, log, start_update,
+from rlf.rl.envs import env_names
+
+def train(envs_bulk, rollouts, policy, updater, log, start_update,
           end_update, lr_updates, args, test_args, checkpointer):
+
+    if args.resume and start_update > 0:
+        start_update += 1
 
     print('RL Training (%d/%d)' % (start_update, end_update))
     episode_rewards = deque(maxlen=100)
@@ -23,6 +28,14 @@ def train(envs, rollouts, policy, updater, log, start_update,
     for j in range(start_update, end_update):
         log.start_interval_log()
 
+        if args.multitask:
+            idx = np.random.randint(10000) % len(env_names)
+            envs = envs_bulk[idx]
+            args.env_name = env_names[idx]
+            print(f"[multitask] updates {j} using {env_names[idx]} env")
+        else:
+            envs = envs_bulk
+
         if args.use_linear_lr_decay:
             # decrease learning rate linearly
             utils.update_linear_schedule(
@@ -31,6 +44,8 @@ def train(envs, rollouts, policy, updater, log, start_update,
 
         for step in range(args.num_steps):
             cur_num_steps = (j * args.num_steps + step) * args.num_processes
+
+            # print(f"j: {j}, cur_num_steps: {cur_num_steps}, step: {step}")
 
             # Sample actions
             ac_outs, q_outs = policy.get_action(
@@ -96,9 +111,33 @@ def train(envs, rollouts, policy, updater, log, start_update,
             log.interval_log(j, total_num_steps,
                              episode_rewards, log_vals, args)
 
+        # multitask evaluation (evaluate all envs)
         if (args.eval_interval is not None and len(episode_rewards) > 1
-                and (j+1) % args.eval_interval == 0):
-            test_eval_envs, train_eval_envs = train_eval(envs, policy, args,
+                and (j+1) % args.eval_interval == 0 and args.multitask):
+            if train_eval_envs is None:
+                test_eval_envs = []
+                train_eval_envs = []
+                for i in range(len(envs_bulk)):
+                    eval_envs = envs_bulk[i]
+                    args.env_name = env_names[i]
+                    print(f"evaluating for env {env_names[i]}")
+                    test_eval_env, train_eval_env = train_eval(eval_envs, policy, args,
+                               test_args, log, j, total_num_steps, test_eval_envs = None,
+                               train_eval_envs = None)
+                    test_eval_envs.append(test_eval_env)
+                    train_eval_envs.append(train_eval_env)
+            else:
+                for i in range(len(envs_bulk)):
+                    eval_envs = envs_bulk[i]
+                    args.env_name = env_names[i]
+                    print(f"evaluating for env {env_names[i]}")
+                    test_eval_envs[i], train_eval_envs[i] = train_eval(eval_envs, policy, args,
+                               test_args, log, j, total_num_steps, test_eval_envs[i],
+                               train_eval_envs[i])
+
+        if (args.eval_interval is not None and len(episode_rewards) > 1
+                and (j+1) % args.eval_interval == 0 and not args.multitask):
+            test_eval_envs, train_eval_envs = train_eval(envs_bulk, policy, args,
                        test_args, log, j, total_num_steps, test_eval_envs,
                        train_eval_envs)
 
@@ -139,15 +178,23 @@ def init_torch(args):
 
 
 def create_rollout_buffer(policy, envs, action_space, args):
-    rollouts = RolloutStorage(args.num_steps, args.num_processes,
-                              envs.observation_space.shape, action_space, args,
-                              policy.get_actor_critic_count(),
-                              policy.get_dim_add_input())
+    if args.multitask:
+        rollouts = RolloutStorage(args.num_steps, args.num_processes, envs[0].observation_space.shape, action_space, args, policy.get_actor_critic_count(), policy.get_dim_add_input())
+    else:
+        rollouts = RolloutStorage(args.num_steps, args.num_processes,
+                                  envs.observation_space.shape, action_space, args,
+                                  policy.get_actor_critic_count(),
+                                  policy.get_dim_add_input())
 
-    obs = envs.reset()
+    for env in envs:
+        obs = env.reset()
     rollouts.obs[0].copy_(obs)
 
-    add_input = torch.FloatTensor(envs.get_aval())
+    if args.multitask:
+        add_input = torch.FloatTensor(envs[0].get_aval())
+    else:
+        add_input = torch.FloatTensor(envs.get_aval())
+
     if add_input is not None:
         rollouts.add_input[0].copy_(add_input)
 

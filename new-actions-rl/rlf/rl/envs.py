@@ -78,6 +78,7 @@ def make_env(env_id, seed, rank, log_dir, allow_early_resets, trans_fn,
 
     return _thunk
 
+env_names = ["CreateLevelPush-v0", "CreateLevelBuckets-v0"]
 
 def make_vec_envs(env_name,
                   seed,
@@ -89,15 +90,23 @@ def make_vec_envs(env_name,
                   trans_fn,
                   args,
                   num_frame_stack=None,
-                  set_eval=False):
+                  set_eval=False,
+                  env_names_input=None):
+
+    if args.multitask and not set_eval:
+        return make_vec_envs_for_multitask(env_names, seed, num_processes, gamma, log_dir, device, allow_early_resets, trans_fn, args, num_frame_stack, set_eval)
+
     envs = [
         make_env(env_name, seed, i, log_dir, allow_early_resets, trans_fn,
             set_eval)
         for i in range(num_processes)
     ]
 
+    print(f"make_env completed: {len(envs)} envs created")
+
     if len(envs) > 1:
         envs = ShmemVecEnv(envs, context='fork')
+        # envs = ShmemVecEnv(envs, context='spawn')
     else:
         envs = DummyVecEnv(envs)
 
@@ -108,17 +117,68 @@ def make_vec_envs(env_name,
             envs = VecNormalize(envs, gamma=gamma)
 
     envs = VecPyTorch(envs, device)
+    print(f"VecPyTorch finished")
 
     if env_name.startswith('Create'):
         num_frame_stack = 3
 
     if num_frame_stack is not None and not args.no_frame_stack:
+        print(f"apply VecPyTorchFrameStack: {num_frame_stack}")
         envs = VecPyTorchFrameStack(envs, num_frame_stack, device)
+        print(f"apply VecPyTorchFrameStack completed!")
     elif len(envs.observation_space.shape) == 3 and not args.no_frame_stack:
         envs = VecPyTorchFrameStack(envs, 4, device)
 
     return envs
 
+def make_vec_envs_for_multitask(env_name,
+                  seed,
+                  num_processes,
+                  gamma,
+                  log_dir,
+                  device,
+                  allow_early_resets,
+                  trans_fn,
+                  args,
+                  num_frame_stack=None,
+                  set_eval=False,
+                  env_names_input=None):
+
+    envs = [
+        [ make_env(env_name, seed, i, log_dir, allow_early_resets, trans_fn, set_eval) for i in range(num_processes)]
+        for env_name in env_names
+    ]
+
+    print(f"make_env_multitask completed: {len(envs)} tasks {len(envs[0])} envs created")
+
+    for i in range(len(envs)):
+        env_name = env_names[i]
+        if len(envs[i]) > 1:
+            envs[i] = ShmemVecEnv(envs[i], context='fork')
+            # envs[i] = ShmemVecEnv(envs[i], context='spawn')
+        else:
+            envs[i] = DummyVecEnv(envs[i])
+
+        if len(envs[i].observation_space.shape) == 1:
+            if gamma is None:
+                envs[i] = VecNormalize(envs[i], ret=False)
+            else:
+                envs[i] = VecNormalize(envs[i], gamma=gamma)
+
+        envs[i] = VecPyTorch(envs[i], device)
+        print(f"finished VecPyTorch for env task {i}")
+
+        if env_name.startswith('Create'):
+            num_frame_stack = 3
+
+        if num_frame_stack is not None and not args.no_frame_stack:
+            print(f"apply VecPyTorchFrameStack: {num_frame_stack}")
+            envs[i] = VecPyTorchFrameStack(envs[i], num_frame_stack, device)
+            print(f"apply VecPyTorchFrameStack completed!")
+        elif len(envs[i].observation_space.shape) == 3 and not args.no_frame_stack:
+            envs[i] = VecPyTorchFrameStack(envs[i], 4, device)
+
+    return envs
 
 # Checks whether done was caused my timit limits or not
 class TimeLimitMask(gym.Wrapper):
@@ -264,7 +324,7 @@ class VecPyTorchFrameStack(VecEnvWrapper):
     def step_wait(self):
         obs, rews, news, infos = self.venv.step_wait()
 
-        a = self.stacked_obs.detach()
+        a = self.stacked_obs.clone().detach()
         # self.stackedobs = np.roll(self.stackedobs, shift=-1, axis=-1)
         self.stacked_obs[:, :-self.shape_dim0] = a[:, self.shape_dim0:]
         for (i, new) in enumerate(news):
