@@ -39,6 +39,25 @@ conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
 conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
 ```
 
+## CSCI566 Multitask Agent training
+
+To train multitask agent, you can run the code with:
+```
+python main.py --env-name {env_name} --prefix main --action-random-sample False --no-test-eval --multitask
+
+# Example script
+python main.py --env-name CreateLevelPush-v0 --prefix main --action-random-sample False --no-test-eval --multitask
+```
+
+To resume the training, you can do it with:
+```
+python main.py --env-name {env_name} --prefix main --action-random-sample False --no-test-eval --multitask --load-best-name {env_name}/{model_previx} --resume --best-run {max_run_epochs}
+
+# Example script
+python main.py --env-name CreateLevelPush-v0 --prefix main --action-random-sample False --no-test-eval --multitask --load-best-name CreateLevelPush-v0/46-Push-31-YD-main --resume --best-run 3849
+```
+
+
 ## Experiments
 The experiment flow for each environment is similar. The steps are always the
 same as follows:  
