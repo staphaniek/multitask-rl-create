@@ -131,7 +131,7 @@ def make_vec_envs(env_name,
 
     return envs
 
-def make_vec_envs_for_multitask(env_name,
+def make_vec_envs_for_multitask(env_names,
                   seed,
                   num_processes,
                   gamma,
