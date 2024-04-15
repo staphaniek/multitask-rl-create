@@ -28,6 +28,7 @@ class ShmemVecEnv(VecEnv):
         environment to get it.
         """
         ctx = mp.get_context(context)
+        print(f"created {ctx} context")
         if spaces:
             observation_space, action_space = spaces
         else:
@@ -54,6 +55,7 @@ class ShmemVecEnv(VecEnv):
                 proc.daemon = True
                 self.procs.append(proc)
                 self.parent_pipes.append(parent_pipe)
+                print(f"currently {len(self.procs)} procs created")
                 proc.start()
                 child_pipe.close()
         self.waiting_step = False

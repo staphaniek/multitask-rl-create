@@ -46,8 +46,12 @@ def get_fine_tune_run(load_name, env_name):
     import os
     import os.path as osp
     env_id, prefix = load_name.split('/')
-    api = wandb.Api()
-    best_run = get_max_run(env_id, api, prefix, False)
+    # api = wandb.Api()
+    # best_run = get_max_run(env_id, api, prefix, False)
+    if args is not None and args.best_run is not None:
+        best_run = args.best_run
+    else:
+        best_run = 4149
 
     if env_name == 'StackEnvSimplestMovingAll-v0' and '-m' in load_name:
         env_name = 'StackEnvSimplestMoving-v0'
@@ -56,17 +60,17 @@ def get_fine_tune_run(load_name, env_name):
     if not osp.exists(load_folder_name):
         os.makedirs(load_folder_name)
 
-    run_cmd = (
-        f"scp aszot@lim-b.usc.edu:~/nips2019_backup/{load_folder_name}/model_{best_run}.pt"
-        f" {os.getcwd()}/{load_folder_name}/"
-    )
-    processes = subprocess.run(run_cmd.split(' '))
+    # run_cmd = (
+    #    f"scp aszot@lim-b.usc.edu:~/nips2019_backup/{load_folder_name}/model_{best_run}.pt"
+    #    f" {os.getcwd()}/{load_folder_name}/"
+    # )
+    # processes = subprocess.run(run_cmd.split(' '))
 
-    run_cmd = (
-        f"scp aszot@lim-b.usc.edu:/home/ayush/nips2019_backup/{load_folder_name}/model_{best_run}.pt"
-        f" {os.getcwd()}/{load_folder_name}/"
-    )
-    processes = subprocess.run(run_cmd.split(' '))
+    # run_cmd = (
+    #     f"scp aszot@lim-b.usc.edu:/home/ayush/nips2019_backup/{load_folder_name}/model_{best_run}.pt"
+    #     f" {os.getcwd()}/{load_folder_name}/"
+    # )
+    # processes = subprocess.run(run_cmd.split(' '))
 
     return osp.join(load_folder_name, 'model_%i.pt' % best_run)
 
@@ -78,7 +82,7 @@ def run_policy(run_settings):
     test_args.device = args.device
 
     if args.load_best_name is not None:
-        args.load_file = get_fine_tune_run(args.load_best_name, args.env_name)
+        args.load_file = get_fine_tune_run(args.load_best_name, args.env_name, args)
 
     log = Logger(run_settings.get_set_args())
     log.set_prefix(args)
@@ -95,25 +99,34 @@ def run_policy(run_settings):
     args.trajectory_len = None
     test_args.trajectory_len = None
 
-    print(args.num_processes)
     envs = make_vec_envs(args.env_name, args.seed, args.num_processes,
                          args.gamma, args.log_dir, args.device,
                          False, args.env_trans_fn, args)
 
+    print(f"envs of {args.env_name} created")
+
     policy_class = run_settings.get_policy_type()
 
-    policy = policy_class(args, envs.observation_space, envs.action_space)
+    if args.multitask:
+        policy = policy_class(args, envs[0].observation_space, envs[0].action_space)
+    else:
+        policy = policy_class(args, envs.observation_space, envs.action_space)
 
-    action_space = envs.action_space
+    if args.multitask:
+        action_space = envs[0].action_space
+    else:
+        action_space = envs.action_space
 
     if checkpointer.should_load():
         load_from_checkpoint(policy, envs, checkpointer)
 
     updater = create_algo(policy, args)
 
+    print("creating rollout buffers...")
     rollouts = create_rollout_buffer(policy, envs,
                                      action_space,
                                      args)
+    print("creating rollout buffers... complete!")
 
     if args.eval_only:
         full_eval(envs, policy, log, checkpointer, args)

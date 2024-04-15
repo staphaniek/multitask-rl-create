@@ -614,6 +614,12 @@ def get_args(arg_str=None):
     parser.add_argument('--state-encoder-hidden-size', type=int, default=64,
                         help='Dimensionality of state encoder hidden layers')
 
+    #### Multitask specific
+    parser.add_argument('--multitask', action='store_true', default=False)
+
+    #### Resume specific
+    parser.add_argument('--best-run', type=int, default=None)
+
     add_args(parser)
 
     if arg_str is not None:

@@ -261,8 +261,10 @@ class DistributionMemory(object):
     def load_distributions(self, load_file):
         path = osp.join('method/embedder/saved_distributions', load_file + '.emb')
         print('loading dists from ' + path)
-        # ckpt = torch.load(path)
-        ckpt = torch.load(path, map_location=torch.device('cpu'))
+        if self.cuda:
+            ckpt = torch.load(path)
+        else:
+            ckpt = torch.load(path, map_location=torch.device('cpu'))
 
         self.mem = ckpt['mem']
         self.mem_keys = ckpt['mem_keys']
