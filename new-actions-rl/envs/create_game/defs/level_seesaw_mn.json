@@ -1,0 +1,44 @@
+{
+    "name": "Seesawenvdefnoise",
+    "target": "[0.2+uniform(-MID_NOISE,MID_NOISE), 0.9-uniform(0,MID_NOISE)]",
+    "goal": "[-0.8+uniform(0,MID_NOISE), -0.8+uniform(0,MID_NOISE)]",
+    "target_sec_goals": [
+        "[-0.1+uniform(-MID_NOISE,MID_NOISE), -0.45+uniform(-MID_NOISE,MID_NOISE)]"
+    ],
+    "place_walls": true,
+    "rnd": {
+    },
+    "env": [
+        {
+            "name": "ball",
+            "pos": "[-0.3+uniform(-MID_NOISE,MID_NOISE), 0.5+uniform(-MID_NOISE,MID_NOISE)]",
+            "radius": 4.0,
+            "mass": 30.0,
+            "elasticity": 0.1,
+            "color": "black"
+        },
+        {
+            "name": "see_saw",
+            "pos": "[-0.3+uniform(-MID_NOISE,MID_NOISE), -0.1+uniform(-MID_NOISE,MID_NOISE)]",
+            "length": 30.0,
+            "on_left": true,
+            "ball_mass": 1.0
+        },
+        {
+            "name": "wall",
+            "pos": "[0.1+uniform(-MID_NOISE,MID_NOISE), -0.7+uniform(0,MID_NOISE)]",
+            "length": 40,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[-0.9+uniform(0,MID_NOISE), -0.3+uniform(-MID_NOISE,MID_NOISE)]",
+            "length": 20.0,
+            "friction": 1.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        }
+
+    ]
+}
