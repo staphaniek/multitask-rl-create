@@ -1,5 +1,5 @@
 {
-    "name": "Push",
+    "name": "PushLn",
     "lvl_type": "marker",
     "target": "[0.1+uniform(-LARGE_NOISE,LARGE_NOISE), -0.25+uniform(-LARGE_NOISE,LARGE_NOISE) ]",
     "goal": "[-0.7+uniform(0,LARGE_NOISE), -0.75 + uniform(0,LARGE_NOISE)]",

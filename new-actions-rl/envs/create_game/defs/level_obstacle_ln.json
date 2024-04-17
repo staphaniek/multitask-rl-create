@@ -1,5 +1,5 @@
 {
-    "name": "Obstacle",
+    "name": "ObstacleLn",
     "lvl_type": "marker",
     "overlap_thresh": 0.3,
     "max_num_steps": 50,

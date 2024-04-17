@@ -1,5 +1,5 @@
 {
-    "name": "Seesawenvdefnoise",
+    "name": "Seesawenvmidnoise",
     "target": "[0.2+uniform(-MID_NOISE,MID_NOISE), 0.9-uniform(0,MID_NOISE)]",
     "goal": "[-0.8+uniform(0,MID_NOISE), -0.8+uniform(0,MID_NOISE)]",
     "target_sec_goals": [
