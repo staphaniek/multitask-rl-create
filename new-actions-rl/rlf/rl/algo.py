@@ -6,6 +6,7 @@ from collections import defaultdict
 from method.embedder.utils import tensor_kl_diagnormal_stdnormal
 import traceback
 from method.radam import RAdam
+from pcgrad import PCGrad
 import math
 
 class pdb_anomaly(torch.autograd.detect_anomaly):
@@ -41,15 +42,15 @@ class PPO():
         self.use_clipped_value_loss = use_clipped_value_loss
 
         if self.args.rl_use_radam:
-            self.optimizer = RAdam([
+            self.optimizer = PCGrad(RAdam([
                 {'params': policy.get_actor_critic_params()}
                 ],
-                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay)
+                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay))
         else:
-            self.optimizer = optim.Adam([
+            self.optimizer = PCGrad(optim.Adam([
                 {'params': policy.get_actor_critic_params()}
                 ],
-                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay)
+                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay))
 
         if self.args.pac_bayes:
             self.a_space = self.policy.get_actor_critic().action_space
