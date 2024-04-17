@@ -1,0 +1,16 @@
+{
+    "name": "Movingmidn",
+    "target": "[0.6-uniform(0,MID_NOISE), 0.75-uniform(0,MID_NOISE)]",
+    "goal": "[-0.7+uniform(0,MID_NOISE), 0.0+uniform(-MID_NOISE,MID_NOISE)]",
+    "moving_goal": true,
+    "rnd": {
+    },
+    "env": [
+        {
+            "name": "trampoline",
+            "pos": "[-0.7+uniform(0,MID_NOISE), -0.75+uniform(0,MID_NOISE)]",
+            "id": 1,
+            "elasticity": 1.0
+        }
+    ]
+}
