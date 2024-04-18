@@ -35,5 +35,5 @@ data/trained_models
 data/vids
 data/results
 data/obs
-*git.txt
+data/logs
 .python-version
