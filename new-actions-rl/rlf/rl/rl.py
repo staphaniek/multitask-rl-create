@@ -120,26 +120,31 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
         # multitask evaluation (evaluate all envs)
         if (args.eval_interval is not None and len(episode_rewards) > 1
                 and (j+1) % args.eval_interval == 0 and args.multitask):
+            task_encoding = torch.zeros(len(envs_bulk))
             if train_eval_envs is None:
                 test_eval_envs = []
                 train_eval_envs = []
                 for i in range(len(envs_bulk)):
                     eval_envs = envs_bulk[i]
                     args.env_name = actual_env_names[i]
+                    task_encoding[i] = 1.
                     print(f"evaluating for env {actual_env_names[i]}")
                     test_eval_env, train_eval_env = train_eval(eval_envs, policy, args,
-                               test_args, log, j, total_num_steps, test_eval_envs = None,
+                               test_args, log, j, total_num_steps, task_encoding, test_eval_envs = None,
                                train_eval_envs = None)
                     test_eval_envs.append(test_eval_env)
                     train_eval_envs.append(train_eval_env)
+                    task_encoding[i] = 0.
             else:
                 for i in range(len(envs_bulk)):
                     eval_envs = envs_bulk[i]
                     args.env_name = actual_env_names[i]
+                    task_encoding[i] = 1.
                     print(f"evaluating for env {actual_env_names[i]}")
                     test_eval_envs[i], train_eval_envs[i] = train_eval(eval_envs, policy, args,
-                               test_args, log, j, total_num_steps, test_eval_envs[i],
+                               test_args, log, j, total_num_steps, task_encoding, test_eval_envs[i],
                                train_eval_envs[i])
+                    task_encoding[i] = 0.
 
         if (args.eval_interval is not None and len(episode_rewards) > 1
                 and (j+1) % args.eval_interval == 0 and not args.multitask):
