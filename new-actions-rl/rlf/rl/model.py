@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from method.utils import Conv2d3x3
 from rlf.rl.utils import init
 
@@ -21,6 +22,8 @@ class ActorCritic(nn.Module):
         self.add_input_dim = add_input_dim
 
         if base is None:
+            if args.soft_mudule:
+                base = SoftModuleCNN
             if len(obs_shape) == 3:
                 base = CNNBase_NEW
             elif len(obs_shape) == 1:
@@ -35,10 +38,16 @@ class ActorCritic(nn.Module):
 
         use_action_output_size = 0
 
-        self.base = base(obs_shape[0], add_input_dim,
-                         action_output_size=use_action_output_size,
-                         recurrent=args.recurrent_policy, hidden_size=args.state_encoder_hidden_size,
-                         use_batch_norm=args.use_batch_norm, args=args)
+        if args.soft_mudule:
+            self.base = base(obs_shape[0], add_input_dim, num_tasks=len(args.env_names),
+                             action_output_size=use_action_output_size,
+                             recurrent=args.recurrent_policy, hidden_size=args.state_encoder_hidden_size,
+                             use_batch_norm=args.use_batch_norm, args=args)
+        else:
+            self.base = base(obs_shape[0], add_input_dim,
+                             action_output_size=use_action_output_size,
+                             recurrent=args.recurrent_policy, hidden_size=args.state_encoder_hidden_size,
+                             use_batch_norm=args.use_batch_norm, args=args)
 
     def clone_fresh(self):
         p = Policy(self.obs_shape, self.action_space, self.args,
@@ -65,17 +74,19 @@ class ActorCritic(nn.Module):
     def forward(self, inputs, rnn_hxs, masks):
         raise NotImplementedError
 
-    def get_pi(self, inputs, rnn_hxs, masks, add_input=None):
-        value, actor_features, rnn_hxs = self.base(
-            inputs, rnn_hxs, masks, add_input)
+    def get_pi(self, inputs, rnn_hxs, masks, add_input=None, task_encoding=None):
+        if self.args.soft_mudule:
+            value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, task_encoding, add_input)
+        else:
+            value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, add_input)
         self.prev_actor_features = actor_features
 
         dist = self.dist(actor_features, add_input)
         return dist, value
 
-    def act(self, inputs, rnn_hxs, masks, deterministic=False, add_input=None):
+    def act(self, inputs, rnn_hxs, masks, task_encoding=None, deterministic=False, add_input=None):
         dist, value = self.get_pi(
-            inputs, rnn_hxs, masks, add_input)
+            inputs, rnn_hxs, masks, add_input, task_encoding)
 
         if deterministic:
             action = dist.mode()
@@ -99,16 +110,22 @@ class ActorCritic(nn.Module):
 
         return value, action, action_log_probs, rnn_hxs, extra
 
-    def get_value(self, inputs, rnn_hxs, masks, action, add_input):
-        value, actor_features, _ = self.base(inputs, rnn_hxs, masks, add_input)
+    def get_value(self, inputs, rnn_hxs, masks, task_encoding, action, add_input):
+        if self.args.soft_mudule:
+            value, actor_features, _ = self.base(inputs, rnn_hxs, masks, task_encoding, add_input)
+        else:
+            value, actor_features, _ = self.base(inputs, rnn_hxs, masks, add_input)
 
         self.prev_actor_features = actor_features
         self.prev_action = action[:, :1].long()
 
         return value
 
-    def evaluate_actions(self, inputs, rnn_hxs, masks, action, add_input):
-        value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, add_input)
+    def evaluate_actions(self, inputs, rnn_hxs, masks, task_encoding, action, add_input):
+        if self.args.soft_mudule:
+            value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, task_encoding, add_input)
+        else:
+            value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, add_input)
 
         dist = self.dist(actor_features, add_input)
 
@@ -327,4 +344,222 @@ class MLPBase(NNBase):
 
         return self.critic_linear(hidden_critic), hidden_actor, rnn_hxs
 
+class SoftModuleCNN(NNBase):
+    def __init__(self, num_inputs, add_input_dim,
+                 num_tasks,
+                 action_output_size=32,
+                 recurrent=False, hidden_size=64,
+                 use_batch_norm=False, args=None):
+        super().__init__(recurrent, hidden_size, hidden_size)
+        self.args = args
+        self.activation_func = F.relu
 
+        self.conv_layers = nn.ModuleList([
+            Conv2d3x3(in_channels=num_inputs, out_channels=16, downsample=True),
+            # shape is now (-1, 16, 42, 42)
+            Conv2d3x3(in_channels=16, out_channels=16, downsample=True),
+            # shape is now (-1, 16, 21, 21)
+            Conv2d3x3(in_channels=16, out_channels=32, downsample=True),
+            # shape is now (-1, 16, 11, 11)
+            Conv2d3x3(in_channels=32, out_channels=32, downsample=True),
+            # shape is now (-1, 32, 6, 6)
+            Conv2d3x3(in_channels=32, out_channels=32, downsample=True),
+            # shape is now (-1, 32, 3, 3)
+        ])
+
+        self.flat_size = 32 * 3 * 3
+
+        def init_(m): return init(m, nn.init.orthogonal_, lambda x: nn.init.
+                                  constant_(x, 0), nn.init.calculate_gain('relu'))
+
+        self.linear_layer = init_(nn.Linear(self.flat_size, hidden_size))
+
+        # Policy network modules
+
+        self.layer_modules = []
+        self.num_layers = 2
+        self.num_modules = 2
+
+        module_input_size = hidden_size
+
+        for i in range(self.num_layers):
+            layer_module = []
+            for j in range(self.num_modules):
+                module = nn.Sequential(
+                    nn.BatchNorm1d(module_input_shape),
+                    init_(nn.Linear(module_input_shape, hidden_size)),
+                    nn.ReLU()
+                )
+
+                layer_module.append(module)
+                self.__setattr__("module_{}_{}".format(i,j), module)
+
+            module_input_shape = hidden_size
+            self.layer_modules.append(layer_module)
+
+        # self.linear_layer = init_(nn.Linear(self.flat_size, hidden_size))
+        self.last_linear_layer = init_(nn.Linear(hidden_size, hidden_size))
+
+        # Routing network
+        # num_tasks -> hidden_size
+        self.routing_linear_layer = nn.Linear(num_tasks, hidden_size)
+        
+        gating_input_shape = hidden_size
+
+        # routing_layers = []
+        # for i in range(self.num_modules - 1):
+        #     routing_layers.append(nn.Linear(gating_input_shape, (self.num_modules * self.num_modules)))
+        # self.routing_layers = nn.ModuleList(*routing_layers)
+
+        self.gating_fcs = []
+        num_gating_layers = 2
+        
+        for i in range(num_gating_layers):
+            gating_fc = nn.Linear(gating_input_shape, hidden_size)
+            self.gating_fcs.append(gating_fc)
+            self.__setattr__("gating_fc_{}".format(i), gating_fc)
+            gating_input_shape = hidden_size
+
+        self.gating_weight_fcs = []
+        self.gating_weight_cond_fcs = []
+
+        self.gating_weight_fc_0 = nn.Linear(gating_input_shape,
+                    num_modules * num_modules )
+        # last_init_func( self.gating_weight_fc_0)
+        # self.gating_weight_fcs.append(self.gating_weight_fc_0)
+
+        for layer_idx in range(num_layers-2):
+            gating_weight_cond_fc = nn.Linear((layer_idx+1) * num_modules * num_modules,
+                                              gating_input_shape)
+            # module_hidden_init_func(gating_weight_cond_fc)
+            self.__setattr__("gating_weight_cond_fc_{}".format(layer_idx+1),
+                             gating_weight_cond_fc)
+            self.gating_weight_cond_fcs.append(gating_weight_cond_fc)
+
+            gating_weight_fc = nn.Linear(gating_input_shape,
+                                         num_modules * num_modules)
+            # last_init_func(gating_weight_fc)
+            self.__setattr__("gating_weight_fc_{}".format(layer_idx+1),
+                             gating_weight_fc)
+            self.gating_weight_fcs.append(gating_weight_fc)
+
+        self.gating_weight_cond_last = nn.Linear((num_layers-1) * \
+                                                 num_modules * num_modules,
+                                                 gating_input_shape)
+        # module_hidden_init_func(self.gating_weight_cond_last)
+
+        self.gating_weight_last = nn.Linear(gating_input_shape, num_modules)
+        # last_init_func( self.gating_weight_last )
+
+        self.pre_softmax = pre_softmax
+        self.cond_ob = cond_ob
+
+        # Critic network
+        self.critic_linear = init_(nn.Linear(hidden_size, 1))
+        self.nonlinearity = nn.ReLU()
+        self.raw_state_emb = None
+        self.hidden_size = hidden_size
+
+        self.train()
+
+    def forward(self, inputs, rnn_hxs, masks, task_encoding, action_pooled=None,
+                add_input=None):
+        if inputs.dtype == torch.uint8:
+            inputs = inputs.float()
+        x = inputs
+        for conv in self.conv_layers:
+            x = conv(x)
+            x = self.nonlinearity(x)
+        x = x.view(-1, self.flat_size)
+        out = self.linear_layer(x)
+
+        self.raw_state_emb = out.clone()
+
+        # Soft modularization start
+
+        embedding = self.routing_linear_layer(task_encoding)
+        embedding = embedding * out
+
+        out = self.activation_func(out)
+
+        if len(self.gating_fcs) > 0:
+            embedding = self.activation_func(embedding)
+            for fc in self.gating_fcs[:-1]:
+                embedding = fc(embedding)
+                embedding = self.activation_func(embedding)
+            embedding = self.gating_fcs[-1](embedding)
+
+        base_shape = embedding.shape[:-1]
+
+        weights = []
+        flatten_weights = []
+
+        raw_weight = self.gating_weight_fc_0(self.activation_func(embedding))
+
+        weight_shape = base_shape + torch.Size([self.num_modules,
+                                                self.num_modules])
+        flatten_shape = base_shape + torch.Size([self.num_modules * \
+                                                self.num_modules])
+
+        raw_weight = raw_weight.view(weight_shape)
+
+        softmax_weight = F.softmax(raw_weight, dim=-1)
+        weights.append(softmax_weight)
+        if self.pre_softmax:
+            flatten_weights.append(raw_weight.view(flatten_shape))
+        else:
+            flatten_weights.append(softmax_weight.view(flatten_shape))
+
+        for gating_weight_fc, gating_weight_cond_fc in zip(self.gating_weight_fcs, self.gating_weight_cond_fcs):
+            cond = torch.cat(flatten_weights, dim=-1)
+            if self.pre_softmax:
+                cond = self.activation_func(cond)
+            cond = gating_weight_cond_fc(cond)
+            cond = cond * embedding
+            cond = self.activation_func(cond)
+
+            raw_weight = gating_weight_fc(cond)
+            raw_weight = raw_weight.view(weight_shape)
+            softmax_weight = F.softmax(raw_weight, dim=-1)
+            weights.append(softmax_weight)
+            if self.pre_softmax:
+                flatten_weights.append(raw_weight.view(flatten_shape))
+            else:
+                flatten_weights.append(softmax_weight.view(flatten_shape))
+
+        cond = torch.cat(flatten_weights, dim=-1)
+        if self.pre_softmax:
+            cond = self.activation_func(cond)
+        cond = self.gating_weight_cond_last(cond)
+        cond = cond * embedding
+        cond = self.activation_func(cond)
+
+        raw_last_weight = self.gating_weight_last(cond)
+        last_weight = F.softmax(raw_last_weight, dim = -1)
+
+        module_outputs = [(layer_module(out)).unsqueeze(-2) \
+                for layer_module in self.layer_modules[0]]
+
+        module_outputs = torch.cat(module_outputs, dim = -2 )
+
+        for i in range(self.num_layers - 1):
+            new_module_outputs = []
+            for j, layer_module in enumerate(self.layer_modules[i + 1]):
+                module_input = (module_outputs * \
+                    weights[i][..., j, :].unsqueeze(-1)).sum(dim=-2)
+
+                module_input = self.activation_func(module_input)
+                new_module_outputs.append((
+                        layer_module(module_input)
+                ).unsqueeze(-2))
+
+            module_outputs = torch.cat(new_module_outputs, dim = -2)
+
+        out = (module_outputs * last_weight.unsqueeze(-1)).sum(-2)
+        out = self.activation_func(out)
+        out = self.last_linear_layer(out)
+
+        # if self.is_recurrent:
+        #     out, rnn_hxs = self._forward_gru(out, rnn_hxs, masks)
+
+        return self.critic_linear(out), out, rnn_hxs

@@ -105,6 +105,10 @@ class RolloutStorage(object):
         self.num_steps = num_steps
         self.step = 0
 
+        if args.soft_mudule:
+            length = len(args.env_names) if len(args.env_names)>1 else 1
+            self.task_encodings = torch.zeros(num_steps, num_processes, length)
+
     def to(self, device):
         self.obs = self.obs.to(device)
         self.rewards = self.rewards.to(device)
@@ -115,12 +119,14 @@ class RolloutStorage(object):
         self.masks = self.masks.to(device)
         self.bad_masks = self.bad_masks.to(device)
         self.add_input = self.add_input.to(device)
+        if self.args.soft_mudule:
+            self.task_encodings = self.task_encodings.to(device)
         if self.args.recurrent_policy:
             self.recurrent_hidden_states = self.recurrent_hidden_states.to(
                 device)
 
     def insert(self, obs, recurrent_hidden_states, actions, action_log_probs,
-               value_preds, rewards, masks, bad_masks, add_input):
+               value_preds, rewards, masks, bad_masks, add_input, task_encodings = None):
 
         self.obs[self.step + 1].copy_(obs)
 
@@ -131,6 +137,8 @@ class RolloutStorage(object):
         self.rewards[self.step].copy_(rewards)
         self.masks[self.step + 1].copy_(masks)
         self.bad_masks[self.step + 1].copy_(bad_masks)
+        if self.args.soft_mudule:
+            self.task_encodings[self.step].copy_(task_encodings)
         if self.args.recurrent_policy:
             self.recurrent_hidden_states[self.step +
                                          1].copy_(recurrent_hidden_states)
@@ -250,8 +258,10 @@ class RolloutStorage(object):
             else:
                 adv_targ = advantages.view(-1, self.value_dim)[indices]
 
+            task_encodings_batch = self.task_encodings[:-1].view(-1, 1)[indices]
+
             yield obs_batch, recurrent_hidden_states_batch, actions_batch, \
-                value_preds_batch, return_batch, masks_batch, \
+                value_preds_batch, return_batch, masks_batch, task_encodings_batch, \
                 old_action_log_probs_batch, adv_targ, \
                 add_input_batch
 

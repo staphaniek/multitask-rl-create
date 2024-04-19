@@ -617,6 +617,8 @@ def get_args(arg_str=None):
     #### Multitask specific
     parser.add_argument('--multitask', action='store_true', default=False)
 
+    parser.add_argument('--soft-module', action='store_true', default=False)
+    
     #### Resume specific
     parser.add_argument('--best-run', type=int, default=None)
 

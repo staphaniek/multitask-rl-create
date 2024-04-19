@@ -28,10 +28,14 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
     for j in range(start_update, end_update):
         log.start_interval_log()
 
+        task_encoding = torch.zeros(len(envs_bulk))
+
         if args.multitask:
-            idx = np.random.randint(10000) % len(env_names)
+            idx = np.random.randint(10000) % len(envs_bulk)
             envs = envs_bulk[idx]
             args.env_name = env_names[idx]
+            # one-hot encode task info
+            task_encoding[idx] = 1.
             print(f"[multitask] updates {j} using {env_names[idx]} env")
         else:
             envs = envs_bulk
@@ -54,6 +58,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
                 rollouts.recurrent_hidden_states[step] if args.recurrent_policy else None,
                 rollouts.masks[step],
                 args,
+                rollouts.task_encodings[step],
                 network='critic',
                 num_steps=cur_num_steps)
 
@@ -83,7 +88,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
 
             rollouts.insert(obs, recurrent_hidden_states, action,
                             action_log_prob, value, reward, masks, bad_masks,
-                            add_input)
+                            add_input, task_encoding)
 
         total_num_steps = (j + 1) * args.num_processes * args.num_steps
 
@@ -91,7 +96,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
             next_value = policy.get_value(
                 rollouts.obs[-1],
                 rollouts.recurrent_hidden_states[step] if args.recurrent_policy else None,
-                rollouts.masks[-1], rollouts.actions[-1],
+                rollouts.masks[-1], rollouts.task_encodings[-1], rollouts.actions[-1],
                 rollouts.add_input[-1]).detach()
 
         rollouts.compute_returns(next_value, args.use_gae, args.gamma,

@@ -138,14 +138,14 @@ class BasePolicy(object):
         pass
 
     def get_action(self, state, add_input, recurrent_hidden_state,
-                   mask, args, network=None, num_steps=None):
+                   mask, args, task_encoding=None, network=None, num_steps=None):
         pass
 
-    def get_value(self, inputs, rnn_hxs, masks, action, add_input):
-        return self.actor_critic.get_value(inputs, rnn_hxs, masks, action, add_input)
+    def get_value(self, inputs, rnn_hxs, masks, task_encoding, action, add_input):
+        return self.actor_critic.get_value(inputs, rnn_hxs, masks, task_encoding, action, add_input)
 
-    def evaluate_actions(self, inputs, rnn_hxs, masks, action, add_input):
-        return self.actor_critic.evaluate_actions(inputs, rnn_hxs, masks,
+    def evaluate_actions(self, inputs, rnn_hxs, masks, task_encoding, action, add_input):
+        return self.actor_critic.evaluate_actions(inputs, rnn_hxs, masks, task_encoding,
                 action, add_input)
 
     def get_actor_critic_params(self):

@@ -91,12 +91,12 @@ class PPO():
             for sample in data_generator:
                 # Get all the data from our batch sample
                 obs_batch, recurrent_hidden_states_batch, actions_batch, \
-                   value_preds_batch, return_batch, masks_batch, \
+                   value_preds_batch, return_batch, masks_batch, task_encodings_batch, \
                    old_action_log_probs_batch, adv_targ, \
                    add_input_batch = sample
 
                 eval_part = self.policy.evaluate_actions(obs_batch,
-                        recurrent_hidden_states_batch, masks_batch,
+                        recurrent_hidden_states_batch, masks_batch, task_encodings_batch,
                         actions_batch, add_input_batch)
 
                 values, action_log_probs, dist_entropy, _, dists = eval_part

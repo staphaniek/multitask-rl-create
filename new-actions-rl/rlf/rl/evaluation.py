@@ -129,6 +129,7 @@ def evaluate(args, policy, ob_rms, log, env_trans_fn, num_iters=0,
                     eval_recurrent_hidden_states if args.recurrent_policy else None,
                     eval_masks,
                     args,
+                    task_encoding,
                     network='critic', num_steps=None)
 
             value, action, action_log_prob, eval_recurrent_hidden_states = ac_outs
