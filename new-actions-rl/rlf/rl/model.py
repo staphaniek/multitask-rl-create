@@ -22,8 +22,9 @@ class ActorCritic(nn.Module):
         self.add_input_dim = add_input_dim
 
         if base is None:
-            if args.soft_mudule:
+            if args.soft_module:
                 base = SoftModuleCNN
+                print("base is SoftModuleCNN")
             if len(obs_shape) == 3:
                 base = CNNBase_NEW
             elif len(obs_shape) == 1:
@@ -38,7 +39,7 @@ class ActorCritic(nn.Module):
 
         use_action_output_size = 0
 
-        if args.soft_mudule:
+        if args.soft_module and isinstance(base, SoftModuleCNN):
             self.base = base(obs_shape[0], add_input_dim, num_tasks=len(args.env_names),
                              action_output_size=use_action_output_size,
                              recurrent=args.recurrent_policy, hidden_size=args.state_encoder_hidden_size,
@@ -75,7 +76,7 @@ class ActorCritic(nn.Module):
         raise NotImplementedError
 
     def get_pi(self, inputs, rnn_hxs, masks, add_input=None, task_encoding=None):
-        if self.args.soft_mudule:
+        if self.args.soft_module:
             value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, task_encoding, add_input)
         else:
             value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, add_input)
@@ -111,7 +112,7 @@ class ActorCritic(nn.Module):
         return value, action, action_log_probs, rnn_hxs, extra
 
     def get_value(self, inputs, rnn_hxs, masks, task_encoding, action, add_input):
-        if self.args.soft_mudule:
+        if self.args.soft_module:
             value, actor_features, _ = self.base(inputs, rnn_hxs, masks, task_encoding, add_input)
         else:
             value, actor_features, _ = self.base(inputs, rnn_hxs, masks, add_input)
@@ -122,7 +123,7 @@ class ActorCritic(nn.Module):
         return value
 
     def evaluate_actions(self, inputs, rnn_hxs, masks, task_encoding, action, add_input):
-        if self.args.soft_mudule:
+        if self.args.soft_module:
             value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, task_encoding, add_input)
         else:
             value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks, add_input)

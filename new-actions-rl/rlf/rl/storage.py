@@ -105,7 +105,7 @@ class RolloutStorage(object):
         self.num_steps = num_steps
         self.step = 0
 
-        if args.soft_mudule:
+        if args.soft_module:
             length = len(args.env_names) if len(args.env_names)>1 else 1
             self.task_encodings = torch.zeros(num_steps, num_processes, length)
 
@@ -119,7 +119,7 @@ class RolloutStorage(object):
         self.masks = self.masks.to(device)
         self.bad_masks = self.bad_masks.to(device)
         self.add_input = self.add_input.to(device)
-        if self.args.soft_mudule:
+        if self.args.soft_module:
             self.task_encodings = self.task_encodings.to(device)
         if self.args.recurrent_policy:
             self.recurrent_hidden_states = self.recurrent_hidden_states.to(
@@ -137,7 +137,7 @@ class RolloutStorage(object):
         self.rewards[self.step].copy_(rewards)
         self.masks[self.step + 1].copy_(masks)
         self.bad_masks[self.step + 1].copy_(bad_masks)
-        if self.args.soft_mudule:
+        if self.args.soft_module:
             self.task_encodings[self.step].copy_(task_encodings)
         if self.args.recurrent_policy:
             self.recurrent_hidden_states[self.step +
