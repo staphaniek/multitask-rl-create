@@ -1,0 +1,30 @@
+{
+    "name": "PushHn",
+    "lvl_type": "marker",
+    "target": "[0.1+uniform(-HIGH_NOISE,HIGH_NOISE), -0.25+uniform(-HIGH_NOISE,HIGH_NOISE) ]",
+    "goal": "[-0.7+uniform(0,HIGH_NOISE), -0.75 + uniform(0,HIGH_NOISE)]",
+    "rnd": {
+        
+    },
+    "env": [
+        {
+            "name": "marker_ball",
+            "pos": "[0.6-uniform(0,HIGH_NOISE), 0.75-uniform(0,HIGH_NOISE)]",
+            "id": 0
+        },
+        {
+            "name": "medium_floor",
+            "pos": "[0.1+uniform(-HIGH_NOISE,HIGH_NOISE), -0.25+uniform(-HIGH_NOISE,HIGH_NOISE)]",
+            "id": 0,
+            "thickness": 1,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "medium_floor",
+            "pos": "[-0.7+uniform(0,HIGH_NOISE), -0.75+uniform(0,HIGH_NOISE)]",
+            "id": 1,
+            "thickness": 1,
+            "color": "STEELBLUE"
+        }
+    ]
+}

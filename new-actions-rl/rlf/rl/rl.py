@@ -16,6 +16,7 @@ from rlf.rl.envs import env_names
 def train(envs_bulk, rollouts, policy, updater, log, start_update,
           end_update, lr_updates, args, test_args, checkpointer):
 
+    actual_env_names = args.env_names if len(args.env_names) > 1 else env_names
     if args.resume and start_update > 0:
         start_update += 1
 
@@ -31,12 +32,12 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
         task_encoding = torch.zeros(len(envs_bulk))
 
         if args.multitask:
-            idx = np.random.randint(10000) % len(envs_bulk)
+            idx = np.random.randint(5000 * len(actual_env_names)) % len(actual_env_names)
             envs = envs_bulk[idx]
-            args.env_name = env_names[idx]
+            args.env_name = actual_env_names[idx]
+            print(f"[multitask] updates {j} using {actual_env_names[idx]} env")
             # one-hot encode task info
             task_encoding[idx] = 1.
-            print(f"[multitask] updates {j} using {env_names[idx]} env")
         else:
             envs = envs_bulk
 
@@ -124,8 +125,8 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
                 train_eval_envs = []
                 for i in range(len(envs_bulk)):
                     eval_envs = envs_bulk[i]
-                    args.env_name = env_names[i]
-                    print(f"evaluating for env {env_names[i]}")
+                    args.env_name = actual_env_names[i]
+                    print(f"evaluating for env {actual_env_names[i]}")
                     test_eval_env, train_eval_env = train_eval(eval_envs, policy, args,
                                test_args, log, j, total_num_steps, test_eval_envs = None,
                                train_eval_envs = None)
@@ -134,8 +135,8 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
             else:
                 for i in range(len(envs_bulk)):
                     eval_envs = envs_bulk[i]
-                    args.env_name = env_names[i]
-                    print(f"evaluating for env {env_names[i]}")
+                    args.env_name = actual_env_names[i]
+                    print(f"evaluating for env {actual_env_names[i]}")
                     test_eval_envs[i], train_eval_envs[i] = train_eval(eval_envs, policy, args,
                                test_args, log, j, total_num_steps, test_eval_envs[i],
                                train_eval_envs[i])

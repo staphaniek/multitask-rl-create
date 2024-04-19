@@ -1,0 +1,138 @@
+{
+    "name": "ObstacleLn",
+    "lvl_type": "marker",
+    "overlap_thresh": 0.3,
+    "max_num_steps": 50,
+    "place_walls": true,
+    "target_reward": 2.0,
+    "sec_goal_reward": 2.0,
+    "marker_must_hit": true,
+    "target": "[0.1+uniform(-LARGE_NOISE,LARGE_NOISE), -0.58 +uniform(-LARGE_NOISE,LARGE_NOISE) ]",
+    "goal": "[-0.9+uniform(0,LARGE_NOISE), -0.8 + uniform(0,LARGE_NOISE)]",
+    "rnd": {
+        
+    },
+    "marker_sec_goals": [
+        "[0.7-uniform(0,LARGEE_NOISE), -0.1+uniform(-LARGE_NOISE,LARGE_NOISE)]"
+    ],
+    "env": [
+        {
+            "name": "marker_ball",
+            "pos": "[-0.8+uniform(0,LARGE_NOISE), 0.8-uniform(0,LARGE_NOISE]",
+            "id": 0
+        },
+        {
+            "name": "ramp",
+            "pos": "[-0.61+uniform(0,LARGE_NOISE), 0.39+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "length": 35.6,
+            "friction": 1.0,
+            "angle": "-np.pi/6",
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.25uniform(-LARGE_NOISE,LARGE_NOISE), 0.04uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "length": 12.7,
+            "friction": 1.0,
+            "color": "STEELBLUE",
+            "thickness": 1.0
+        },
+        {
+            "name": "floor",
+            "pos": "[0.07+uniform(-LARGE_NOISE,LARGE_NOISE), -0.1+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "length": 26.0,
+            "friction": 1.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "medium_floor",
+            "pos": "[-0.8+uniform(0,LARGE_NOISE), -0.81+uniform(0,LARGE_NOISE)]",
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+
+            "name": "medium_floor",
+            "pos": "[0.12+uniform(-LARGE_NOISE,LARGE_NOISE), -0.59+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "ramp",
+            "pos": "[-0.34+uniform(-LARGE_NOISE,LARGE_NOISE), -0.70+uniform(0,LARGE_NOISE)]",
+            "length": 24.5,
+            "friction": 1.0,
+            "angle": "np.pi/8",
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "box",
+            "size": 5,
+            "mass": 30.0,
+            "elasticity": 0.1,
+            "pos": "[-0.7+uniform(0,LARGE_NOISE), 0.3+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "color": "box"
+        },
+        {
+            "name": "box",
+            "size": 5,
+            "mass": 30.0,
+            "elasticity": 0.1,
+            "pos": "[-0.7+uniform(0,LARGE_NOISE), 0.2+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "color": "box"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.6+uniform(0,LARGE_NOISE), 0.18+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "length": 15.0,
+            "friction": 1.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.8+uniform(0,LARGE_NOISE), 0.18+uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "length": 15.0,
+            "friction": 1.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[0.35+uniform(-LARGE_NOISE,LARGE_NOISE), 0.8-uniform(0,LARGE_NOISE)]",
+            "length": 15.0,
+            "friction": 1.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "box",
+            "size": 5,
+            "mass": 30.0,
+            "elasticity": 0.1,
+            "pos": "[0.25+uniform(-LARGE_NOISE,LARGE_NOISE), 0.93-uniform(0,LARGE_NOISE)]",
+            "id": 3,
+            "color": "box"
+        },
+        {
+            "name": "box",
+            "size": 5,
+            "mass": 30.0,
+            "elasticity": 0.1,
+            "pos": "[0.25+uniform(-LARGE_NOISE,LARGE_NOISE), 0.83-uniform(-LARGE_NOISE,LARGE_NOISE)]",
+            "id": 3,
+            "color": "box"
+        },
+        {
+            "name": "wall",
+            "pos": "[0.15+uniform(-LARGE_NOISE,LARGE_NOISE), 0.8-uniform(0,LARGE_NOISE)]",
+            "length": 15.0,
+            "friction": 1.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        }
+    ]
+}

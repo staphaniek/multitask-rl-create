@@ -78,7 +78,7 @@ def make_env(env_id, seed, rank, log_dir, allow_early_resets, trans_fn,
 
     return _thunk
 
-env_names = ["CreateLevelPush-v0", "CreateLevelBuckets-v0"]
+env_names = ["CreateLevelPush-v0", "CreateLevelObstacle-v0", "CreateLevelLadder-v0"]
 
 def make_vec_envs(env_name,
                   seed,
@@ -90,8 +90,7 @@ def make_vec_envs(env_name,
                   trans_fn,
                   args,
                   num_frame_stack=None,
-                  set_eval=False,
-                  env_names_input=None):
+                  set_eval=False):
 
     if args.multitask and not set_eval:
         return make_vec_envs_for_multitask(env_names, seed, num_processes, gamma, log_dir, device, allow_early_resets, trans_fn, args, num_frame_stack, set_eval)
@@ -144,9 +143,10 @@ def make_vec_envs_for_multitask(env_names,
                   set_eval=False,
                   env_names_input=None):
 
+    candidate_env_names = args.env_names if len(args.env_names) > 1 else env_names
     envs = [
         [ make_env(env_name, seed, i, log_dir, allow_early_resets, trans_fn, set_eval) for i in range(num_processes)]
-        for env_name in env_names
+        for env_name in candidate_env_names
     ]
 
     print(f"make_env_multitask completed: {len(envs)} tasks {len(envs[0])} envs created")

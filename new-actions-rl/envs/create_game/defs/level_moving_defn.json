@@ -1,0 +1,16 @@
+{
+    "name": "Movingdefn",
+    "target": "[0.6-uniform(0,DEF_NOISE), 0.75-uniform(0,DEF_NOISE)]",
+    "goal": "[-0.7+uniform(0,DEF_NOISE), 0.0+uniform(-DEF_NOISE,DEF_NOISE)]",
+    "moving_goal": true,
+    "rnd": {
+    },
+    "env": [
+        {
+            "name": "trampoline",
+            "pos": "[-0.7+uniform(0,DEF_NOISE), -0.75+uniform(0,DEF_NOISE)]",
+            "id": 1,
+            "elasticity": 1.0
+        }
+    ]
+}
