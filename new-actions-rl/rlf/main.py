@@ -39,7 +39,7 @@ def get_num_updates(args):
     return num_updates, lr_updates
 
 
-def get_fine_tune_run(load_name, env_name):
+def get_fine_tune_run(load_name, env_name, args):
     from rlf.exp_mgr.eval import get_max_run
     import wandb
     import subprocess
