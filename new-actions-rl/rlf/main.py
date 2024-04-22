@@ -34,8 +34,11 @@ def get_num_updates(args):
         args.num_env_steps) // args.num_steps // args.num_processes
     if args.lr_env_steps is None:
         args.lr_env_steps = args.num_env_steps
-    lr_updates = int(
-        args.lr_env_steps) // args.num_steps // args.num_processes
+    if args.multitask:
+        env_len = max(len(env_names), 1)
+    else:
+        env_len = 1
+    lr_updates = int(args.lr_env_steps) * env_len // args.num_steps // args.num_processes
     return num_updates, lr_updates
 
 
