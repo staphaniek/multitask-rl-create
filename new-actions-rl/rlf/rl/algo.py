@@ -141,10 +141,11 @@ class PPO():
 
                     loss = loss.sum()
 
-                    loss.backward()
+                    # loss.backward()
 
-                nn.utils.clip_grad_norm_(self.policy.get_actor_critic_params(),
-                                         self.max_grad_norm)
+                # nn.utils.clip_grad_norm_(self.policy.get_actor_critic_params(),
+                #                          self.max_grad_norm)
+                self.optimizer.pc_backward()
                 self.optimizer.step()
 
                 log_vals['value_loss'] += value_loss.sum().item()
