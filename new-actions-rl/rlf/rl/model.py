@@ -378,8 +378,12 @@ class SoftModuleCNN(NNBase):
         # Policy network modules
 
         self.layer_modules = []
-        self.num_layers = 2
-        self.num_modules = 2
+        if args.soft_module_deep:
+            self.num_layers = 4
+            self.num_modules = 4
+        else:
+            self.num_layers = 2
+            self.num_modules = 2
 
         module_input_size = hidden_size
 
