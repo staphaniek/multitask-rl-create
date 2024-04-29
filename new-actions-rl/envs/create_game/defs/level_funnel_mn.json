@@ -1,0 +1,93 @@
+{
+    "name": "Funnelmn",
+    "target": "[0.0+uniform(-MID_NOISE, MID_NOISE), 0.9+uniform(-MID_NOISE, 0)]",
+    "goal": "[0.0+uniform(-MID_NOISE, MID_NOISE), 0.0+uniform(-MID_NOISE, MID_NOISE)]",
+    "reward": "sparse",
+    "rnd": {
+
+        },
+    "env": [
+        {
+            "name": "floor",
+            "pos": "[-0.56+uniform(-MID_NOISE, MID_NOISE), -0.99+uniform(0, MID_NOISE)]",
+            "length": 35.5,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[-0.88+uniform(0, MID_NOISE), -0.16+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 10.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[-0.257+uniform(-MID_NOISE, MID_NOISE), -0.16+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 10.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.99+uniform(0, MID_NOISE), -0.7+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.15+uniform(-MID_NOISE, MID_NOISE), -0.7+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "funnel",
+            "pos": "[-0.6+uniform(-MID_NOISE, MID_NOISE), -0.15+uniform(-MID_NOISE, MID_NOISE)]",
+            "angle": "-np.pi/4",
+            "size": 8.0
+        },
+        {
+            "name": "floor",
+            "pos": "[0.56+uniform(-MID_NOISE, MID_NOISE), -0.99+uniform(0, MID_NOISE)]",
+            "length": 35.5,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[0.88+uniform(-MID_NOISE, 0), -0.16+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 10.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[0.257+uniform(-MID_NOISE, MID_NOISE), -0.16+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 10.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[0.99+uniform(-MID_NOISE, 0), -0.7+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[0.15+uniform(-MID_NOISE, MID_NOISE), -0.7+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "funnel",
+            "pos": "[0.6+uniform(-MID_NOISE, MID_NOISE), -0.15+uniform(-MID_NOISE, MID_NOISE)]",
+            "angle": "np.pi/4",
+            "size": 8.0
+        }
+    ]
+}

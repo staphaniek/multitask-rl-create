@@ -1,0 +1,32 @@
+{
+    "name": "Basketdefn",
+    "target": "[0.2+uniform(-DEF_NOISE, DEF_NOISE), 0.89+uniform(-DEF_NOISE, DEF_NOISE)]",
+    "goal": "[-0.8+uniform(-DEF_NOISE, DEF_NOISE), -0.8+uniform(-DEF_NOISE, DEF_NOISE)]",
+    "reward": "sparse",
+    "goal_is_basket": "True",
+    "ball_is_basket": "True",
+    "max_num_steps": 40,
+    "rnd": {
+        },
+    "target_sec_goals": [
+        "[0.35+uniform(-DEF_NOISE, DEF_NOISE), -0.05+uniform(-DEF_NOISE, DEF_NOISE)]",
+        "[-0.15+uniform(-DEF_NOISE, DEF_NOISE), 0.35+uniform(-DEF_NOISE, DEF_NOISE)]"
+    ],
+    "env": [
+        {
+            "name": "fast_ladder",
+            "pos": "[0.5+uniform(-DEF_NOISE, DEF_NOISE), -0.4+uniform(-DEF_NOISE, DEF_NOISE)]",
+            "id": 0
+        },
+        {
+            "name": "fast_ladder",
+            "pos": "[-0.05+uniform(-DEF_NOISE, DEF_NOISE), 0.0+uniform(-DEF_NOISE, DEF_NOISE)]",
+            "id": 0
+        },
+        {
+            "name": "fast_ladder",
+            "pos": "[-0.55+uniform(-DEF_NOISE, DEF_NOISE), 0.35+uniform(-DEF_NOISE, DEF_NOISE)]",
+            "id": 0
+        }
+    ]
+}

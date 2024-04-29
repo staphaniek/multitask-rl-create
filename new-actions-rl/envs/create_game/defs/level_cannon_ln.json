@@ -1,0 +1,49 @@
+{
+    "name": "Cannonln",
+    "lvl_type": "marker",
+    "place_walls": false,
+    "marker_must_hit": true,
+    "target": "[0.4+uniform(-LARGE_NOISE, LARGE_NOISE), 0.0+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+    "goal": "[-0.7+uniform(0, LARGE_NOISE), -0.1+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+    "rnd":{
+
+    },
+    "env": [
+        {
+           "name": "marker_ball",
+           "pos": "[0.8+uniform(-LARGE_NOISE, 0), 0.75+uniform(-LARGE_NOISE, 0)]"
+        },
+        {
+            "name": "wall",
+            "pos": "[1.0+uniform(-LARGE_NOISE, 0), 0.0+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "length": 90,
+            "color": "LIGHTSTEELBLUE"
+        }, 
+        {
+            "name": "floor",
+            "pos": "[0.0+uniform(-LARGE_NOISE, LARGE_NOISE), 1.0+uniform(-LARGE_NOISE, 0)]",
+            "length": 90,
+            "color": "LIGHTSTEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.1+uniform(-LARGE_NOISE, LARGE_NOISE), 0.35+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "length": 55.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "cannon",
+            "pos": "[-0.1+uniform(-LARGE_NOISE, LARGE_NOISE), -0.8+uniform(0, LARGE_NOISE)]",
+            "angle": "110 * np.pi / 180",
+            "force": 140.0
+        },
+        {
+            "name": "short_floor",
+            "pos": "[0.4+uniform(-LARGE_NOISE, LARGE_NOISE), 0.0+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        }
+                                                                                                                                        ]
+}
+

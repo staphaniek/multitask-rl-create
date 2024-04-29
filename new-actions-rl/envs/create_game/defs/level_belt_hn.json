@@ -1,0 +1,50 @@
+{
+    "name": "Belthn",
+    "target": "[0.75+uniform(-HIGH_NOISE, 0), 0.75+uniform(-HIGH_NOISE, 0)]",
+    "goal": "[0.5+uniform(-HIGH_NOISE, HIGH_NOISE), -0.7+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+    "reward": "sparse",
+    "target_ball_radius": 3.0,
+    "max_num_steps": 50,
+    "rnd": {
+            
+        },
+    "target_sec_goals": [
+        "[-0.6+uniform(-HIGH_NOISE, HIGH_NOISE), -0.35+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+        "[-0.15+uniform(-HIGH_NOISE, HIGH_NOISE), 0.28+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+        "[-0.1+uniform(-HIGH_NOISE, HIGH_NOISE), -0.5+uniform(-HIGH_NOISE, HIGH_NOISE)]"
+    ],
+    "env": [
+        {
+            "name": "belt",
+            "pos": "[0.55+uniform(-HIGH_NOISE, HIGH_NOISE), 0.25+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+            "length": "7.0",
+            "vel": "-2.5"
+        },
+        {
+            "name": "belt",
+            "pos": "[0.05+uniform(-HIGH_NOISE, HIGH_NOISE), 0.2+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+            "length": "7.0",
+            "vel": "-2.5"
+        },
+        {
+            "name": "right_belt",
+            "pos": "[-0.3+uniform(-HIGH_NOISE, HIGH_NOISE), -0.6+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+            "length": "7.0",
+            "vel": "5.0"
+        },
+        {
+            "name": "floor",
+            "pos": "[0.41+uniform(-HIGH_NOISE, HIGH_NOISE), -0.30+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+            "length": 65,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.34+uniform(-HIGH_NOISE, HIGH_NOISE), -0.17+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+            "length": 12.7,
+            "friction": 1.0,
+            "color": "STEELBLUE",
+            "thickness": 2.5
+        }
+    ]
+}
