@@ -42,16 +42,17 @@ class PPO():
         self.use_clipped_value_loss = use_clipped_value_loss
 
         if self.args.rl_use_radam:
-            self.optimizer = PCGrad(RAdam([
+            base_optimizer = PCGrad(RAdam([
                 {'params': policy.get_actor_critic_params()}
                 ],
                 lr=args.lr, eps=args.eps, weight_decay=args.weight_decay))
         else:
-            self.optimizer = PCGrad(optim.Adam([
+            base_optimizer = PCGrad(optim.Adam([
                 {'params': policy.get_actor_critic_params()}
                 ],
                 lr=args.lr, eps=args.eps, weight_decay=args.weight_decay))
-
+        self.optimizer = PCGrad(base_optimizer) # Use PCGrad for gradient surgery
+                   
         if self.args.pac_bayes:
             self.a_space = self.policy.get_actor_critic().action_space
             if self.a_space.__class__.__name__ == 'Discrete':
@@ -89,6 +90,7 @@ class PPO():
                 data_generator = rollouts.feed_forward_generator(
                     advantages, self.num_mini_batch)
 
+            losses = [] # Store lsoses for PCGrad
             for sample in data_generator:
                 # Get all the data from our batch sample
                 obs_batch, recurrent_hidden_states_batch, actions_batch, \
@@ -138,14 +140,14 @@ class PPO():
                 with pdb_anomaly():
                     loss = (value_loss * self.value_loss_coef + action_loss -
                          dist_entropy.mean() * self.entropy_coef + self.args.complexity_scale * complexity_loss)
-
-                    loss = loss.sum()
-
+                    losses.append(loss) # Store loss for PCGrad
+                    # loss = loss.sum()
                     # loss.backward()
-
-                # nn.utils.clip_grad_norm_(self.policy.get_actor_critic_params(),
-                #                          self.max_grad_norm)
-                self.optimizer.pc_backward()
+                # Use PCGrad to compute gradients.
+                self.optimizer.pc_backward(losses)
+              
+                nn.utils.clip_grad_norm_(self.policy.get_actor_critic_params(),
+                                         self.max_grad_norm)
                 self.optimizer.step()
 
                 log_vals['value_loss'] += value_loss.sum().item()
