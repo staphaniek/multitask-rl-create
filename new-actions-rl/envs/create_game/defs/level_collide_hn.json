@@ -1,0 +1,19 @@
+{
+    "name": "Collidehn",
+    "target": "[0.6+uniform(-HIGH_NOISE, HIGH_NOISE), 0.7+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+    "goal": "[-0.6+uniform(-HIGH_NOISE, HIGH_NOISE), 0.7+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+    "moving_goal": true,
+    "place_walls": true,
+    "rnd": {
+        
+    },
+    "env": [
+        {
+            "name": "wall",
+            "pos": "[0.0+uniform(-HIGH_NOISE, HIGH_NOISE) 0.25+uniform(-HIGH_NOISE, HIGH_NOISE)]",
+            "length": 35.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        }
+    ]
+}

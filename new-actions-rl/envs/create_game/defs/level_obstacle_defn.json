@@ -13,12 +13,12 @@
         
     },
     "marker_sec_goals": [
-        "[0.7-uniform(0,LARGEE_NOISE), -0.1+uniform(-DEF_NOISE,DEF_NOISE)]"
+        "[0.7-uniform(0,DEF_NOISE), -0.1+uniform(-DEF_NOISE,DEF_NOISE)]"
     ],
     "env": [
         {
             "name": "marker_ball",
-            "pos": "[-0.8+uniform(0,DEF_NOISE), 0.8-uniform(0,DEF_NOISE]",
+            "pos": "[-0.8+uniform(0,DEF_NOISE), 0.8-uniform(0,DEF_NOISE)]",
             "id": 0
         },
         {
@@ -32,7 +32,7 @@
         },
         {
             "name": "wall",
-            "pos": "[-0.25uniform(-DEF_NOISE,DEF_NOISE), 0.04uniform(-DEF_NOISE,DEF_NOISE)]",
+            "pos": "[-0.25+uniform(-DEF_NOISE,DEF_NOISE), 0.04uniform(-DEF_NOISE,DEF_NOISE)]",
             "length": 12.7,
             "friction": 1.0,
             "color": "STEELBLUE",

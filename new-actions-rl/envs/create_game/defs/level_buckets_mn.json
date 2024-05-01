@@ -1,0 +1,54 @@
+{
+    "name": "Bucketsmn",
+    "target": "[0.75+uniform(-MID_NOISE, MID_NOISE), 0.75+uniform(-MID_NOISE, MID_NOISE)]",
+    "goal": "[-0.85+uniform(0, MID_NOISE), -0.85+uniform(0, MID_NOISE)]",
+    "reward": "sparse",
+    "target_ball_radius": 3.0,
+    "rnd": {
+        },
+    "target_sec_goals": [
+        "[-0.20+uniform(-MID_NOISE, MID_NOISE), -0.10+uniform(-MID_NOISE, MID_NOISE)]"
+    ],
+    "env": [
+        {
+            "name": "floor",
+            "pos": "[-0.48+uniform(-MID_NOISE, MID_NOISE), -0.99+uniform(0, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[-0.75+uniform(-MID_NOISE, MID_NOISE), -0.15+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 25.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.99+uniform(0, MID_NOISE), -0.7+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[0.05+uniform(-MID_NOISE, MID_NOISE), -0.7+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "bucket",
+            "pos": "[0.05+uniform(-MID_NOISE, MID_NOISE), -0.10+uniform(-MID_NOISE, MID_NOISE)]",
+            "size": 4.0,
+            "angle": 0.0
+        },
+        {
+            "name": "bucket",
+            "pos": "[-0.45+uniform(-MID_NOISE, MID_NOISE), -0.10+uniform(-MID_NOISE, MID_NOISE)]",
+            "size": 4.0,
+            "angle": 0.0
+        }
+    ]
+}

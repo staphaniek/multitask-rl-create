@@ -1,0 +1,55 @@
+{
+    "name": "Bucketsln",
+    "target": "[0.75+uniform(-LARGE_NOISE, 0), 0.75+uniform(-LARGE_NOISE, 0)]",
+    "goal": "[-0.85+uniform(0, LARGE_NOISE), -0.85+uniform(0, LARGE_NOISE)]",
+    "reward": "sparse",
+    "target_ball_radius": 3.0,
+    "rnd": {
+            
+        },
+    "target_sec_goals": [
+        "[-0.20+uniform(-LARGE_NOISE, LARGE_NOISE), -0.10+uniform(-LARGE_NOISE, LARGE_NOISE)]"
+    ],
+    "env": [
+        {
+            "name": "floor",
+            "pos": "[-0.48+uniform(-LARGE_NOISE, LARGE_NOISE), -0.99+uniform(0, LARGE_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "floor",
+            "pos": "[-0.75+uniform(0, LARGE_NOISE), -0.15+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "length": 25.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[-0.99+uniform(0, LARGE_NOISE), -0.7+uniform(0, LARGE_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "wall",
+            "pos": "[0.05+uniform(-LARGE_NOISE, LARGE_NOISE), -0.7+uniform(0, LARGE_NOISE)]",
+            "length": 45.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        },
+        {
+            "name": "bucket",
+            "pos": "[0.05+uniform(-LARGE_NOISE, LARGE_NOISE), -0.10+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "size": 4.0,
+            "angle": 0.0
+        },
+        {
+            "name": "bucket",
+            "pos": "[-0.45+uniform(-LARGE_NOISE, LARGE_NOISE), -0.10+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "size": 4.0,
+            "angle": 0.0
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "name": "Collidemn",
+    "target": "[0.6+uniform(-MID_NOISE, MID_NOISE), 0.7+uniform(-MID_NOISE, MID_NOISE)]",
+    "goal": "[-0.6+uniform(-MID_NOISE, MID_NOISE), 0.7+uniform(-MID_NOISE, MID_NOISE)]",
+    "moving_goal": true,
+    "place_walls": true,
+    "rnd": {
+    },
+    "env": [
+        {
+            "name": "wall",
+            "pos": "[0.0+uniform(-MID_NOISE, MID_NOISE), 0.25+uniform(-MID_NOISE, MID_NOISE)]",
+            "length": 35.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        }
+    ]
+}

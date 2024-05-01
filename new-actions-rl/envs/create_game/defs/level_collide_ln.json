@@ -1,0 +1,19 @@
+{
+    "name": "Collideln",
+    "target": "[0.6+uniform(-LARGE_NOISE, LARGE_NOISE), 0.7+uniform(-LARGE_NOISE, 0)]",
+    "goal": "[-0.6+uniform(-LARGE_NOISE, LARGE_NOISE), 0.7+uniform(-LARGE_NOISE, 0)]",
+    "moving_goal": true,
+    "place_walls": true,
+    "rnd": {
+        
+    },
+    "env": [
+      {
+            "name": "wall",
+            "pos": "[0.0+uniform(-LARGE_NOISE, LARGE_NOISE) 0.25+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "length": 35.0,
+            "thickness": 1.0,
+            "color": "STEELBLUE"
+        }
+    ]
+}

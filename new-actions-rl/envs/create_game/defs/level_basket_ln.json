@@ -1,0 +1,33 @@
+{
+    "name": "Basketln",
+    "target": "[0.75+uniform(-LARGE_NOISE, 0), 0.75+uniform(-LARGE_NOISE, 0)]",
+    "goal": "[-0.75+uniform(0, LARGE_NOISE), 0.65+uniform(-LARGE_NOISE, 0)]",
+    "reward": "sparse",
+    "goal_is_basket": "True",
+    "ball_is_basket": "True",
+    "max_num_steps": 40,
+    "rnd": {
+            
+        },
+    "target_sec_goals": [
+        "[0.35+uniform(-HIGH_LARGE, 0), -0.05+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+        "[-0.15+uniform(-HIGH_NOLARGE LARGE_NOISE), 0.35+uniform(-LARGE_NOISE, LARGE_NOISE)]"
+    ],
+    "env": [
+        {
+            "name": "fast_ladder",
+            "pos": "[0.5+uniform(-LARGE_NOISE, LARGE_NOISE), -0.4+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "id": 0
+        },
+        {
+            "name": "fast_ladder",
+            "pos": "[-0.05+uniform(-LARGE_NOISE, LARGE_NOISE), 0.0+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "id": 0
+        },
+        {
+            "name": "fast_ladder",
+            "pos": "[-0.55+uniform(0, LARGE_NOISE), 0.35+uniform(-LARGE_NOISE, LARGE_NOISE)]",
+            "id": 0
+        }
+    ]
+}
