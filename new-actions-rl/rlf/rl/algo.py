@@ -42,15 +42,15 @@ class PPO():
         self.use_clipped_value_loss = use_clipped_value_loss
 
         if self.args.rl_use_radam:
-            base_optimizer = PCGrad(RAdam([
+            base_optimizer = RAdam([
                 {'params': policy.get_actor_critic_params()}
                 ],
-                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay))
+                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay)
         else:
-            base_optimizer = PCGrad(optim.Adam([
+            base_optimizer = optim.Adam([
                 {'params': policy.get_actor_critic_params()}
                 ],
-                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay))
+                lr=args.lr, eps=args.eps, weight_decay=args.weight_decay)
         self.optimizer = PCGrad(base_optimizer) # Use PCGrad for gradient surgery
                    
         if self.args.pac_bayes:
