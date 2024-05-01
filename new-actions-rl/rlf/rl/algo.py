@@ -6,7 +6,8 @@ from collections import defaultdict
 from method.embedder.utils import tensor_kl_diagnormal_stdnormal
 import traceback
 from method.radam import RAdam
-from rlf.rl.PCGrad_tf import PCGrad
+# from rlf.rl.PCGrad_tf import PCGrad
+from rlf.rl.pcgrad import PCGrad
 import math
 
 class pdb_anomaly(torch.autograd.detect_anomaly):
@@ -51,7 +52,8 @@ class PPO():
                 {'params': policy.get_actor_critic_params()}
                 ],
                 lr=args.lr, eps=args.eps, weight_decay=args.weight_decay)
-                   
+
+        self.optimizer = PCGrad(base_optimizer)
         if self.args.pac_bayes:
             self.a_space = self.policy.get_actor_critic().action_space
             if self.a_space.__class__.__name__ == 'Discrete':
@@ -120,6 +122,8 @@ class PPO():
                 else:
                     value_loss = 0.5 * (return_batch - values).pow(2).mean(0)
 
+                self.optimizer.zero_grad()
+              
                 if self.args.pac_bayes:
                     n_samples = obs_batch.shape[0] * self.args.num_mini_batch
                     if self.a_space.__class__.__name__ == 'Discrete':
@@ -132,13 +136,15 @@ class PPO():
                 else:
                     complexity_loss = 0
 
-                loss = (value_loss * self.value_loss_coef + action_loss - 
-                        dist_entropy.mean() * self.entropy_coef + self.args.complexity_scale * complexity_loss)
-                self.optimizer.zero_grad()
-                grads_and_vars = PCGrad.compute_gradients(self.optimizer, loss, self.policy.get_actor_critic_params())
-
                 with pdb_anomaly():
-                  self.optimizer.apply_gradients(grads_and_vars)
+                  loss = (value_loss * self.value_loss_coef + action_loss - 
+                          dist_entropy.mean() * self.entropy_coef + self.args.complexity_scale * complexity_loss)
+                  loss = loss.sum()
+                  loss.backward()
+                
+                nn.utils.clip_grad_norm_(self.policy.get_actor_critic_params(),
+                                         self.max_grad_norm)
+                self.optimizer.step()
 
                 log_vals['value_loss'] += value_loss.sum().item()
                 log_vals['action_loss'] += action_loss.sum().item()
