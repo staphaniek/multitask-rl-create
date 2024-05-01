@@ -105,11 +105,8 @@ class RolloutStorage(object):
         self.num_steps = num_steps
         self.step = 0
 
-        if args.soft_module:
-            length = len(args.env_names) if len(args.env_names)>1 else 1
-            self.task_encodings = torch.zeros(num_steps, num_processes, length)
-        else:
-            self.task_encodings = torch.zeros(num_steps, num_processes, length)
+        length = len(args.env_names) if len(args.env_names) > 1 else 3
+        self.task_encodings = torch.zeros(num_steps, num_processes, length)
 
     def to(self, device):
         self.obs = self.obs.to(device)
