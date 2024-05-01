@@ -6,7 +6,7 @@ from collections import defaultdict
 from method.embedder.utils import tensor_kl_diagnormal_stdnormal
 import traceback
 from method.radam import RAdam
-from rlf.rl.pcgrad import PCGrad
+from rlf.rl.PCGrad_tf import PCGrad
 import math
 
 class pdb_anomaly(torch.autograd.detect_anomaly):
@@ -51,7 +51,6 @@ class PPO():
                 {'params': policy.get_actor_critic_params()}
                 ],
                 lr=args.lr, eps=args.eps, weight_decay=args.weight_decay)
-        self.optimizer = PCGrad(base_optimizer) # Use PCGrad for gradient surgery
                    
         if self.args.pac_bayes:
             self.a_space = self.policy.get_actor_critic().action_space
@@ -90,7 +89,6 @@ class PPO():
                 data_generator = rollouts.feed_forward_generator(
                     advantages, self.num_mini_batch)
 
-            losses = [] # Store lsoses for PCGrad
             for sample in data_generator:
                 # Get all the data from our batch sample
                 obs_batch, recurrent_hidden_states_batch, actions_batch, \
@@ -122,9 +120,6 @@ class PPO():
                 else:
                     value_loss = 0.5 * (return_batch - values).pow(2).mean(0)
 
-                self.optimizer.zero_grad()
-
-
                 if self.args.pac_bayes:
                     n_samples = obs_batch.shape[0] * self.args.num_mini_batch
                     if self.a_space.__class__.__name__ == 'Discrete':
@@ -137,18 +132,13 @@ class PPO():
                 else:
                     complexity_loss = 0
 
+                loss = (value_loss * self.value_loss_coef + action_loss - 
+                        dist_entropy.mean() * self.entropy_coef + self.args.complexity_scale * complexity_loss)
+                self.optimizer.zero_grad()
+                grads_and_vars = PCGrad.compute_gradients(self.optimizer, loss, self.policy.get_actor_critic_params())
+
                 with pdb_anomaly():
-                    loss = (value_loss * self.value_loss_coef + action_loss -
-                         dist_entropy.mean() * self.entropy_coef + self.args.complexity_scale * complexity_loss)
-                    losses.append(loss) # Store loss for PCGrad
-                    # loss = loss.sum()
-                    # loss.backward()
-                # Use PCGrad to compute gradients.
-                self.optimizer.pc_backward(losses)
-              
-                nn.utils.clip_grad_norm_(self.policy.get_actor_critic_params(),
-                                         self.max_grad_norm)
-                self.optimizer.step()
+                  self.optimizer.apply_gradients(grads_and_vars)
 
                 log_vals['value_loss'] += value_loss.sum().item()
                 log_vals['action_loss'] += action_loss.sum().item()
