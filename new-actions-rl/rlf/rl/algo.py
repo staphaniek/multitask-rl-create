@@ -73,7 +73,7 @@ class PPO():
 
 
     def update(self, rollouts):
-        advantages = rollouts.compute_advantages_base()
+        advantages = [rollout.compute_advantages_base() for rollout in rollouts]
 
         value_loss_epoch = 0
         action_loss_epoch = 0
