@@ -152,7 +152,7 @@ def make_vec_envs_for_multitask(env_names,
     print(f"make_env_multitask completed: {len(envs)} tasks {len(envs[0])} envs created")
 
     for i in range(len(envs)):
-        env_name = env_names[i]
+        env_name = candidate_env_names[i]
         if len(envs[i]) > 1:
             envs[i] = ShmemVecEnv(envs[i], context='fork')
             # envs[i] = ShmemVecEnv(envs[i], context='spawn')
