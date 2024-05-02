@@ -27,14 +27,18 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
 
     for j in range(start_update, end_update):
         log.start_interval_log()
-
+        rollout = None
+        idx = 0
+              
         if args.multitask:
             idx = np.random.randint(10000) % len(env_names)
             envs = envs_bulk[idx]
+            rollout = rollouts[idx]
             args.env_name = env_names[idx]
             print(f"[multitask] updates {j} using {env_names[idx]} env")
         else:
             envs = envs_bulk
+            rollout = rollouts[0]
 
         if args.use_linear_lr_decay:
             # decrease learning rate linearly
@@ -49,10 +53,10 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
 
             # Sample actions
             ac_outs, q_outs = policy.get_action(
-                rollouts.obs[step],
-                rollouts.add_input[step],
-                rollouts.recurrent_hidden_states[step] if args.recurrent_policy else None,
-                rollouts.masks[step],
+                rollout.obs[step],
+                rollout.add_input[step],
+                rollout.recurrent_hidden_states[step] if args.recurrent_policy else None,
+                rollout.masks[step],
                 args,
                 network='critic',
                 num_steps=cur_num_steps)
@@ -81,7 +85,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
             aval = np.array(envs.get_aval())
             add_input = torch.FloatTensor(aval)
 
-            rollouts.insert(obs, recurrent_hidden_states, action,
+            rollout.insert(obs, recurrent_hidden_states, action,
                             action_log_prob, value, reward, masks, bad_masks,
                             add_input)
 
@@ -89,20 +93,22 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
 
         with torch.no_grad():
             next_value = policy.get_value(
-                rollouts.obs[-1],
-                rollouts.recurrent_hidden_states[step] if args.recurrent_policy else None,
-                rollouts.masks[-1], rollouts.actions[-1],
-                rollouts.add_input[-1]).detach()
+                rollout.obs[-1],
+                rollout.recurrent_hidden_states[step] if args.recurrent_policy else None,
+                rollout.masks[-1], rollouts.actions[-1],
+                rollout.add_input[-1]).detach()
 
-        rollouts.compute_returns(next_value, args.use_gae, args.gamma,
+        rollout.compute_returns(next_value, args.use_gae, args.gamma,
                                  args.gae_lambda, args.use_proper_time_limits)
 
         if args.decay_clipping:
             updater.clip_param = args.clip_param * (1. - j / end_update)
 
+        rollouts[idx] = rollout
         log_vals = updater.update(rollouts)
 
-        rollouts.after_update()
+        rollout.after_update()
+        rollouts[idx] = rollout
 
         if ((j+1) % args.save_interval == 0) and checkpointer.should_save():
             save_agent(policy, envs, j, updater, args, checkpointer, log)
