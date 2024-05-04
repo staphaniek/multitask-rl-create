@@ -6,7 +6,6 @@ from collections import defaultdict
 from method.embedder.utils import tensor_kl_diagnormal_stdnormal
 import traceback
 from method.radam import RAdam
-# from rlf.rl.PCGrad_tf import PCGrad
 from rlf.rl.pcgrad import PCGrad
 import math
 
@@ -74,7 +73,7 @@ class PPO():
 
 
     def update(self, rollouts):
-        advantages = rollouts.compute_advantages_base()
+        advantages = [rollout.compute_advantages_base() for rollout in rollouts]
 
         value_loss_epoch = 0
         action_loss_epoch = 0

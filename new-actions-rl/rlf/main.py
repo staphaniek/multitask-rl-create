@@ -123,9 +123,11 @@ def run_policy(run_settings):
     updater = create_algo(policy, args)
 
     print("creating rollout buffers...")
-    rollouts = create_rollout_buffer(policy, envs,
-                                     action_space,
-                                     args)
+    rollouts = []
+    for env in envs:
+        rollout = create_rollout_buffer(policy, env, action_space, args)
+        rollouts.append(rollouts)
+        
     print("creating rollout buffers... complete!")
 
     if args.eval_only:
