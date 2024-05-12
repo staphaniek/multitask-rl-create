@@ -66,7 +66,7 @@ class DistanceMethod(BasePolicy):
         return init_extract_aval(self.args, evaluate=evaluate)
 
     def get_action(self, state, add_input, recurrent_hidden_state,
-                   mask, args, network=None, num_steps=None):
+                   mask, args, task_encoding=None, network=None, num_steps=None):
         # Sample actions
         with torch.no_grad():
             parts = self.actor_critic.act(state, recurrent_hidden_state, mask,

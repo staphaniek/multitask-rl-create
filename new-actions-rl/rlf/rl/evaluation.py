@@ -15,7 +15,7 @@ import cv2
 VID_DIR = './vids'
 
 def train_eval(envs, policy, args, test_args, log, j,
-        total_num_steps, test_eval_envs, train_eval_envs):
+        total_num_steps, task_encoding, test_eval_envs, train_eval_envs):
     vec_norm = utils.get_vec_normalize(envs)
     if vec_norm != None:
         ob_rms = vec_norm.ob_rms
@@ -27,7 +27,7 @@ def train_eval(envs, policy, args, test_args, log, j,
 
     print('Evaluating train')
     eval_train_reward, eval_train_info, train_eval_envs = evaluate(args, policy, ob_rms,
-            log, args.env_trans_fn, j+1, num_render=args.num_render, train_mode='train',
+            log, args.env_trans_fn, j+1, task_encoding = task_encoding, num_render=args.num_render, train_mode='train',
             eval_envs=train_eval_envs)
 
     if not args.no_test_eval:
@@ -35,7 +35,7 @@ def train_eval(envs, policy, args, test_args, log, j,
         print('Evaluating test')
         eval_test_reward, eval_test_info, test_eval_envs = evaluate(test_args,
                 policy, ob_rms,
-                log, args.test_env_trans_fn, j+1, num_render=args.num_render, train_mode='test',
+                log, args.test_env_trans_fn, j+1, task_encoding = task_encoding, num_render=args.num_render, train_mode='test',
                 eval_envs=test_eval_envs)
 
     include_keys = args.env_interface.get_special_stat_names()
@@ -72,7 +72,7 @@ def full_eval(envs, policy, log, checkpointer, args):
 
 
 def evaluate(args, policy, ob_rms, log, env_trans_fn, num_iters=0,
-             verbose=False, num_render=None, train_mode='train', eval_envs=None):
+             verbose=False, task_encoding = None, num_render=None, train_mode='train', eval_envs=None):
 
     if 'Reco' in args.env_name:
         num_render = 0
@@ -129,6 +129,7 @@ def evaluate(args, policy, ob_rms, log, env_trans_fn, num_iters=0,
                     eval_recurrent_hidden_states if args.recurrent_policy else None,
                     eval_masks,
                     args,
+                    task_encoding,
                     network='critic', num_steps=None)
 
             value, action, action_log_prob, eval_recurrent_hidden_states = ac_outs

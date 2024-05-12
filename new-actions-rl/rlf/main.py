@@ -30,12 +30,10 @@ class RunSettings(object):
 
 
 def get_num_updates(args):
-    num_updates = int(
-        args.num_env_steps) // args.num_steps // args.num_processes
+    num_updates = int(args.num_env_steps) // args.num_steps // args.num_processes
     if args.lr_env_steps is None:
         args.lr_env_steps = args.num_env_steps
-    lr_updates = int(
-        args.lr_env_steps) // args.num_steps // args.num_processes
+    lr_updates = int(args.lr_env_steps) // args.num_steps // args.num_processes
     return num_updates, lr_updates
 
 

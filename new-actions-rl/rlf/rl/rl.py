@@ -29,11 +29,15 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
     for j in range(start_update, end_update):
         log.start_interval_log()
 
+        task_encoding = torch.zeros(len(envs_bulk))
+
         if args.multitask:
             idx = np.random.randint(5000 * len(actual_env_names)) % len(actual_env_names)
             envs = envs_bulk[idx]
             args.env_name = actual_env_names[idx]
             print(f"[multitask] updates {j} using {actual_env_names[idx]} env")
+            # one-hot encode task info
+            task_encoding[idx] = 1.
         else:
             envs = envs_bulk
 
@@ -55,6 +59,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
                 rollouts.recurrent_hidden_states[step] if args.recurrent_policy else None,
                 rollouts.masks[step],
                 args,
+                rollouts.task_encodings[step],
                 network='critic',
                 num_steps=cur_num_steps)
 
@@ -84,7 +89,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
 
             rollouts.insert(obs, recurrent_hidden_states, action,
                             action_log_prob, value, reward, masks, bad_masks,
-                            add_input)
+                            add_input, task_encoding)
 
         total_num_steps = (j + 1) * args.num_processes * args.num_steps
 
@@ -92,7 +97,7 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
             next_value = policy.get_value(
                 rollouts.obs[-1],
                 rollouts.recurrent_hidden_states[step] if args.recurrent_policy else None,
-                rollouts.masks[-1], rollouts.actions[-1],
+                rollouts.masks[-1], rollouts.task_encodings[-1], rollouts.actions[-1],
                 rollouts.add_input[-1]).detach()
 
         rollouts.compute_returns(next_value, args.use_gae, args.gamma,
@@ -115,26 +120,31 @@ def train(envs_bulk, rollouts, policy, updater, log, start_update,
         # multitask evaluation (evaluate all envs)
         if (args.eval_interval is not None and len(episode_rewards) > 1
                 and (j+1) % args.eval_interval == 0 and args.multitask):
+            task_encoding = torch.zeros(len(envs_bulk))
             if train_eval_envs is None:
                 test_eval_envs = []
                 train_eval_envs = []
                 for i in range(len(envs_bulk)):
                     eval_envs = envs_bulk[i]
                     args.env_name = actual_env_names[i]
+                    task_encoding[i] = 1.
                     print(f"evaluating for env {actual_env_names[i]}")
                     test_eval_env, train_eval_env = train_eval(eval_envs, policy, args,
-                               test_args, log, j, total_num_steps, test_eval_envs = None,
+                               test_args, log, j, total_num_steps, task_encoding, test_eval_envs = None,
                                train_eval_envs = None)
                     test_eval_envs.append(test_eval_env)
                     train_eval_envs.append(train_eval_env)
+                    task_encoding[i] = 0.
             else:
                 for i in range(len(envs_bulk)):
                     eval_envs = envs_bulk[i]
                     args.env_name = actual_env_names[i]
+                    task_encoding[i] = 1.
                     print(f"evaluating for env {actual_env_names[i]}")
                     test_eval_envs[i], train_eval_envs[i] = train_eval(eval_envs, policy, args,
-                               test_args, log, j, total_num_steps, test_eval_envs[i],
+                               test_args, log, j, total_num_steps, task_encoding, test_eval_envs[i],
                                train_eval_envs[i])
+                    task_encoding[i] = 0.
 
         if (args.eval_interval is not None and len(episode_rewards) > 1
                 and (j+1) % args.eval_interval == 0 and not args.multitask):
